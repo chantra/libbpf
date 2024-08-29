@@ -11,8 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  vmtest:
-    runs-on: ${{ matrix.runs_on }}
+  build:
     name: Kernel ${{ matrix.kernel }} on ${{ matrix.arch }} + selftests
     strategy:
       fail-fast: false
@@ -21,22 +20,22 @@ jobs:
           - kernel: 'LATEST'
             runs_on: ubuntu-24.04
             arch: 'x86_64'
-          - kernel: '5.5.0'
-            runs_on: ubuntu-24.04
-            arch: 'x86_64'
-          - kernel: '4.9.0'
-            runs_on: ubuntu-24.04
-            arch: 'x86_64'
-          - kernel: 'LATEST'
-            runs_on: ["s390x", "docker-noble-main"]
-            arch: 's390x'
-    steps:
-      - uses: actions/checkout@v4
-        name: Checkout
-      - uses: ./.github/actions/setup
-        name: Setup
-      - uses: ./.github/actions/vmtest
-        name: vmtest
-        with:
-          kernel: ${{ matrix.kernel }}
-          arch: ${{ matrix.arch }}
+          #- kernel: '5.5.0'
+          #  runs_on: ubuntu-24.04
+          #  arch: 'x86_64'
+          #- kernel: '4.9.0'
+          #  runs_on: ubuntu-24.04
+          #  arch: 'x86_64'
+          #- kernel: 'LATEST'
+          #  runs_on: ["s390x", "docker-noble-main"]
+          #  arch: 's390x'
+    uses: kernel-patches/vmtest/.github/workflows/kernel-build.yml@master
+    with:
+      arch: ${{ matrix.arch }}
+      toolchain_full: gcc
+      toolchain: gcc
+      runs_on: ${{ toJSON(matrix.runs_on) }}
+      llvm-version: 17
+      kernel: ${{ inputs.kernel }}
+      download_sources: true
+
